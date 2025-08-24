@@ -1,0 +1,22 @@
+# Ignore datasets
+dataset/
+dataset_split/
+test_images/
+SavingNeem An image dataset for/
+*.zip
+
+# Ignore virtual environment
+venv/
+
+# Ignore temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.DS_Store
+*.log
+
+# Ignore model checkpoints if too large
+*.h5
+*.keras
+*.ckpt

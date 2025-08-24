@@ -1,0 +1,10 @@
+tensorflow==2.20.0
+torch==2.8.0
+torchvision==0.23.0
+optree==0.17.0
+numpy
+pandas
+matplotlib
+scikit-learn
+Pillow
+flask
