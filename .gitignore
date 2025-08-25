@@ -8,6 +8,10 @@ SavingNeem An image dataset for/
 # Ignore virtual environment
 venv/
 
+# Ignore uploaded and sample images
+static/uploads/
+test_samples/
+
 # Ignore temporary files
 __pycache__/
 *.pyc

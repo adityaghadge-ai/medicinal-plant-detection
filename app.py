@@ -10,7 +10,7 @@ import tensorflow as tf
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 # Paths
-MODEL_PATH = "models/plant_classifier.h5"   # or medicinal_model.h5
+MODEL_PATH = "models/medicinal_mobilenet.h5"   # or medicinal_model.h5
 LABELS_PATH = "models/class_labels.json"
 
 # Load model and labels
