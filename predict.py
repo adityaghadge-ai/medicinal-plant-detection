@@ -36,5 +36,5 @@ def predict_plant(img_path):
 
 # Example usage
 if __name__ == "__main__":
-    test_image = r"D:\EDI\medicinal-plant-detection\test_samples\40.jpg"  # replace with your test image
+    test_image = r"D:\EDI\medicinal-plant-detection\test_samples\4230.jpg"  # replace with your test image
     predict_plant(test_image)

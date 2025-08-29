@@ -1,26 +1,44 @@
-# Ignore datasets
+# ============================
+# Datasets (ignore large data)
+# ============================
 dataset/
 dataset_split/
+disease_dataset/
+disease_dataset_split/
 test_images/
+test_img2/
+test_samples/
 SavingNeem An image dataset for/
 *.zip
 
-# Ignore virtual environment
+# ============================
+# Virtual environment
+# ============================
 venv/
 
-# Ignore uploaded and sample images
+# ============================
+# Uploaded / generated files
+# ============================
+uploads/
 static/uploads/
-test_samples/
 
-# Ignore temporary files
+# ============================
+# Models
+# ============================
+# Ignore all model weight/checkpoint files
+*.h5
+*.keras
+*.ckpt
+
+# Allow only JSON configs/remedies in models/
+!models/*.json
+
+# ============================
+# Temporary & cache
+# ============================
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.DS_Store
 *.log
-
-# Ignore model checkpoints if too large
-*.h5
-*.keras
-*.ckpt

@@ -2,68 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>🌱 Prediction Result</title>
+    <title>Prediction Result</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-align: center;
-            margin: 20px;
         }
         img {
-            max-width: 400px;
-            height: auto;
+            max-width: 300px;
             border-radius: 8px;
             margin: 15px 0;
         }
         h1 {
-            color: green;
+            color: #2c3e50;
         }
-        .low-confidence {
-            color: red;
-            font-weight: bold;
-        }
-        .feedback {
+        .info {
+            text-align: left;
             margin-top: 20px;
         }
-        .feedback button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+        .info p {
+            font-size: 18px;
+            margin: 8px 0;
+        }
+        .label {
+            font-weight: bold;
+            color: #34495e;
+        }
+        .remedy {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eafaf1;
+            border-left: 6px solid #27ae60;
+            border-radius: 8px;
             font-size: 16px;
+            text-align: left;
         }
-        .yes {
-            background-color: #4CAF50;
-            color: white;
+        .back-btn {
+            margin-top: 20px;
         }
-        .no {
-            background-color: #f44336;
+        .back-btn a {
+            text-decoration: none;
+            background: #3498db;
             color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .back-btn a:hover {
+            background: #2980b9;
         }
     </style>
 </head>
 <body>
-    <h1>🌱 Prediction Result</h1>
+    <div class="container">
+        <h1>🌿 Prediction Result</h1>
+        <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image">
 
-    <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image">
+        <div class="info">
+            <p><span class="label">Plant:</span> {{ plant_label }} ({{ plant_conf }})</p>
+            <p><span class="label">Disease:</span> {{ disease_label }} ({{ disease_conf }})</p>
+        </div>
 
-    <h2>Predicted: {{ label }}</h2>
+        <div class="remedy">
+            <strong>Suggested Remedy:</strong>
+            <p>{{ remedy }}</p>
+        </div>
 
-    {% if confidence < 0.5 %}
-        <p class="low-confidence">
-            ⚠️ Low confidence ({{ confidence }}) — this prediction might be wrong.
-        </p>
-    {% else %}
-        <p>Confidence: {{ confidence }}</p>
-    {% endif %}
-
-    <div class="feedback">
-        <p>Was this correct?</p>
-        <button class="yes">✅ Yes</button>
-        <button class="no">❌ No</button>
+        <div class="back-btn">
+            <a href="{{ url_for('index') }}">⬅ Upload Another Image</a>
+        </div>
     </div>
-
-    <p><a href="{{ url_for('index') }}">🔄 Try another image</a></p>
 </body>
 </html>

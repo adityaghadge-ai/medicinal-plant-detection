@@ -1,63 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>🌿 Medicinal Plant Classifier</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: #f4f9f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 80px auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #2e7d32;
-            margin-bottom: 15px;
-        }
-        p {
-            color: #555;
-            margin-bottom: 25px;
-        }
-        input[type="file"] {
-            padding: 10px;
-            border: 2px solid #4caf50;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        button {
-            background: #4caf50;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #388e3c;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>🌿 Medicinal Plant & Disease Classifier</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    h1 {
+      color: #2e7d32;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #555;
+      margin-bottom: 25px;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .file-label {
+      display: inline-block;
+      padding: 14px 28px;
+      border: 2px solid #4caf50;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #2e7d32;
+      transition: 0.3s;
+    }
+    .file-label:hover {
+      background: #e8f5e9;
+    }
+    .preview img {
+      margin-top: 20px;
+      max-width: 350px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    button {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 25px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #388e3c;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌿 Medicinal Plant Classifier</h1>
-        <p>Upload a plant leaf image to identify its type</p>
+  <div class="container">
+    <h1>🌿 Medicinal Plant & Disease Classifier</h1>
+    <p>Select a plant leaf image to identify the plant and detect diseases.</p>
 
-        <form action="/" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" accept="image/*" required><br><br>
-            <button type="submit">🔍 Predict Plant</button>
-        </form>
-    </div>
+    <form action="/" method="post" enctype="multipart/form-data">
+      <label for="file-input" class="file-label">📂 Choose Image</label>
+      <input type="file" id="file-input" name="file" accept="image/*" required>
+      <div class="preview" id="preview"></div>
+      <button type="submit">🔍 Predict</button>
+    </form>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const preview = document.getElementById('preview');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.innerHTML = "<p style='color:red;'>❌ Please select a valid image file.</p>";
+      }
+    });
+  </script>
 </body>
 </html>
