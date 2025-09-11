@@ -1,3 +1,15 @@
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Check if key is available
+api_key = os.getenv("GROQ_API_KEY")
+if not api_key:
+    raise ValueError("❌ GROQ_API_KEY not found. Please check your .env file.")
+print("✅ GROQ_API_KEY found.")
+
 import os, json
 import numpy as np
 from flask import Flask, request, render_template, redirect, url_for
@@ -109,5 +121,53 @@ def display_image(filename):
     return redirect(url_for("static", filename="uploads/" + filename))
 
 # ===============================
+# Chatbot Integration (Groq)
+# ===============================
+import os
+from groq import Groq
+
+# Load API key from environment variable
+GROQ_API_KEY = os.getenv("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")
+if not GROQ_API_KEY:
+    raise ValueError("❌ GROQ_API_KEY not set. Please set it as an environment variable.")
+
+client = Groq(api_key=GROQ_API_KEY)
+
+conversation = []
+
+@app.route("/chat", methods=["GET", "POST"])
+def chat():
+    global conversation
+
+    if request.method == "POST":
+        user_message = request.form["message"]
+        lang = request.form["lang"]
+
+        # Add user message to conversation
+        conversation.append({"sender": "user", "text": user_message})
+
+        # Call Groq LLM for response
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",  # you can change to a larger Groq model
+                messages=[
+                    {"role": "system", "content": f"You are a smart farming assistant. Reply in {lang}."},
+                    *[{"role": "user" if msg["sender"] == "user" else "assistant", "content": msg["text"]}
+                      for msg in conversation]
+                ],
+                temperature=0.7
+            )
+            bot_reply = response.choices[0].message.content
+        except Exception as e:
+            bot_reply = f"⚠️ Error connecting to Groq API: {str(e)}"
+
+        # Save bot reply
+        conversation.append({"sender": "bot", "text": bot_reply})
+
+    return render_template("chat.html", conversation=conversation, lang=request.form.get("lang", "en"))
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)

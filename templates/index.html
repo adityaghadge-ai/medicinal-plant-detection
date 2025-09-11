@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <style>
-  body{
+  body {
     background: linear-gradient(135deg, #a90335, #90bafc);
   }
 </style>
@@ -14,6 +14,7 @@
     <div class="container py-5">
         <h1 class="text-center mb-4">🌱 Medicinal Plant & Disease Detection</h1>
 
+        <!-- Plant & Disease Prediction Form -->
         <form action="/predict" method="post" enctype="multipart/form-data" class="card p-4 shadow">
             <div class="mb-3">
                 <label for="task" class="form-label">Choose Task</label>
@@ -30,6 +31,15 @@
 
             <button type="submit" class="btn btn-success w-100">Predict</button>
         </form>
+
+        <!-- Chatbot button (outside form so it doesn't trigger image upload) -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('chat') }}">
+                <button class="btn btn-primary">
+                    💬 Chat with Farming Bot
+                </button>
+            </a>
+        </div>
     </div>
 </body>
 </html>

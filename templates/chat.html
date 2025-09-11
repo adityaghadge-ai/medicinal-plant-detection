@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Farmer Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #ece5dd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #075E54;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .chat-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #ece5dd;
+        }
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+        .user {
+            background: #dcf8c6;
+            align-self: flex-end;
+        }
+        .bot {
+            background: #fff;
+            border: 1px solid #ddd;
+            align-self: flex-start;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: #f0f0f0;
+        }
+        textarea {
+            flex: 1;
+            resize: none;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        button {
+            background: #25D366;
+            border: none;
+            color: white;
+            padding: 0 20px;
+            margin-left: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        select {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">🌾 Farmer Chatbot</div>
+        <form method="POST" style="flex:1; display:flex; flex-direction:column;">
+            <div style="padding:10px; background:#f9f9f9;">
+                <label for="lang">Choose Language:</label>
+                <select name="lang">
+                    <option value="en" {% if lang=="en" %}selected{% endif %}>English</option>
+                    <option value="hi" {% if lang=="hi" %}selected{% endif %}>Hindi</option>
+                    <option value="mr" {% if lang=="mr" %}selected{% endif %}>Marathi</option>
+                </select>
+            </div>
+            <div class="chat-box">
+                {% for msg in conversation %}
+                    <div class="message {{ msg.sender }}">
+                        {{ msg.text }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="chat-input">
+                <textarea name="message" placeholder="Type your message..." required></textarea>
+                <button type="submit">Send</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

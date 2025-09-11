@@ -1,11 +1,12 @@
-# chatbot.py
 import difflib
 from deep_translator import GoogleTranslator
 
 class SmartChatbot:
-    def __init__(self):
+    def __init__(self, user_lang="en"):
+        self.user_lang = user_lang  # Farmer’s chosen language
+
         # Knowledge Base
-       self.responses = {
+        self.responses = {
             "hello": "Hello! How can I help you with farming today?",
             "hi": "Hi! Do you want to ask about plant care or disease?",
             "bye": "Goodbye! Wishing you healthy crops 🌱",
@@ -33,28 +34,34 @@ class SmartChatbot:
             "aphids": "Aphids can be controlled with insecticidal soap or neem oil.",
             "whiteflies": "Whiteflies can be managed with yellow sticky traps and neem oil.",
             "blight": "Blight is a serious disease. Remove affected plants and use copper-based fungicides.",
-           
         }
 
-    def get_response(self, user_input, src_lang="auto", dest_lang="en"):
-        # Translate user input → English
-        query = GoogleTranslator(source=src_lang, target="en").translate(user_input).lower()
+    def get_response(self, user_input):
+        # Step 1: Translate farmer’s input → English
+        query = GoogleTranslator(source=self.user_lang, target="en").translate(user_input).lower()
 
-        # Fuzzy match
+        # Step 2: Fuzzy match
         best_match = difflib.get_close_matches(query, self.responses.keys(), n=1, cutoff=0.6)
         if best_match:
             response = self.responses[best_match[0]]
         else:
             response = "Sorry, I don’t know the answer to that. Please try asking differently."
 
-        # Translate bot reply → back to user language
-        final_response = GoogleTranslator(source="en", target=src_lang).translate(response)
+        # Step 3: Translate bot response → farmer’s chosen language
+        final_response = GoogleTranslator(source="en", target=self.user_lang).translate(response)
         return final_response
 
 
 if __name__ == "__main__":
-    bot = SmartChatbot()
     print("🌾 Farmer Chatbot (Multilingual + Fuzzy Matching). Type 'exit' to quit.")
+    print("\nAvailable languages: en (English), hi (Hindi), mr (Marathi)")
+
+    # Farmer selects language
+    user_lang = input("Choose your language (default 'en'): ").strip().lower()
+    if user_lang == "":
+        user_lang = "en"
+
+    bot = SmartChatbot(user_lang)
 
     while True:
         user_input = input("\nYou: ")
@@ -62,5 +69,5 @@ if __name__ == "__main__":
             print("Bot: Goodbye! 👋")
             break
 
-        reply = bot.get_response(user_input, src_lang="auto")
+        reply = bot.get_response(user_input)
         print("Bot:", reply)
