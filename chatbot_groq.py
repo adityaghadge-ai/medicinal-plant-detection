@@ -4,8 +4,12 @@ import requests
 class SmartChatbot:
     def __init__(self, user_lang="en"):
         self.user_lang = user_lang
-        self.api_key = os.getenv("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")  # Set in system environment
+        # ✅ Fix: fetch API key properly from env, not hardcoded
+        self.api_key = os.getenv("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")
         self.api_url = "https://api.groq.com/v1/chat/completions"
+
+        if not self.api_key:
+            raise ValueError("❌ GROQ_API_KEY not found. Please set it in your environment or .env file.")
 
     def get_response(self, user_message: str) -> str:
         headers = {
@@ -22,7 +26,7 @@ class SmartChatbot:
         """
 
         payload = {
-            "model": "mixtral-8x7b-32768",  # example Groq model
+            "model": "mixtral-8x7b-32768",  # Example Groq model
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
@@ -30,10 +34,11 @@ class SmartChatbot:
             "temperature": 0.4
         }
 
-        response = requests.post(self.api_url, headers=headers, json=payload)
-        data = response.json()
-
         try:
+            response = requests.post(self.api_url, headers=headers, json=payload)
+            data = response.json()
+
+            # Extract assistant reply
             return data["choices"][0]["message"]["content"].strip()
         except Exception as e:
-            return f"⚠️ Error: {e}"
+            return f"⚠️ Error: {str(e)}"

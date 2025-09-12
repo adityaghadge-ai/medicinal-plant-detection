@@ -127,7 +127,7 @@ import os
 from groq import Groq
 
 # Load API key from environment variable
-GROQ_API_KEY = os.getenv("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")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("❌ GROQ_API_KEY not set. Please set it as an environment variable.")
 
@@ -146,27 +146,49 @@ def chat():
         # Add user message to conversation
         conversation.append({"sender": "user", "text": user_message})
 
-        # Call Groq LLM for response
+        # Prepare messages for Groq API
+        messages = [
+            {
+                "role": "system",
+                "content": f"""
+You are a multilingual farming assistant.
+STRICT RULE: Reply only in {lang}. Never answer in English unless {lang} is English. Never answer in Marathi unless {lang} is Marathi. Never answer in Hindi unless {lang} is Hindi.
+             
+Guidelines:
+- Natural, conversational tone (like ChatGPT/DeepSeek/Grok).
+- 3–5 sentences max (concise but informative).
+- No repetition of user’s question.
+- Simple, farmer-friendly advice (avoid jargon).
+- Use bullet points only when helpful.
+- Always stay supportive, clear, and practical.
+"""
+            },
+            *[
+                {
+                    "role": "user" if msg["sender"] == "user" else "assistant",
+                    "content": msg["text"]
+                }
+                for msg in conversation
+            ]
+        ]
+
         try:
             response = client.chat.completions.create(
-                model="llama-3.1-8b-instant",  # you can change to a larger Groq model
-                messages=[
-                    {"role": "system", "content": f"You are a smart farming assistant. Reply in {lang}."},
-                    *[{"role": "user" if msg["sender"] == "user" else "assistant", "content": msg["text"]}
-                      for msg in conversation]
-                ],
+                model="llama-3.1-8b-instant",   # ✅ updated Groq model
+                messages=messages,
                 temperature=0.7
             )
-            bot_reply = response.choices[0].message.content
+            bot_reply = response.choices[0].message.content.strip()
         except Exception as e:
             bot_reply = f"⚠️ Error connecting to Groq API: {str(e)}"
 
         # Save bot reply
         conversation.append({"sender": "bot", "text": bot_reply})
 
-    return render_template("chat.html", conversation=conversation, lang=request.form.get("lang", "en"))
+        return render_template("chat.html", conversation=conversation, lang=request.form.get("lang", "en"))
 
-
+    # For GET requests, just render the chat page
+    return render_template("chat.html", conversation=conversation, lang=request.args.get("lang", "en"))
 
 
 if __name__ == "__main__":
