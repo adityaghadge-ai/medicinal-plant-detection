@@ -1,20 +1,21 @@
 from dotenv import load_dotenv
-import os
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Check if key is available
-api_key = os.getenv("GROQ_API_KEY")
-if not api_key:
-    raise ValueError("❌ GROQ_API_KEY not found. Please check your .env file.")
-print("✅ GROQ_API_KEY found.")
-
 import os, json
 import numpy as np
 from flask import Flask, request, render_template, redirect, url_for
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from groq import Groq
+
+# ===============================
+# Load environment variables
+# ===============================
+load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    raise ValueError("❌ GROQ_API_KEY not set. Please check your .env file.")
+print("✅ GROQ_API_KEY found.")
+
+client = Groq(api_key=GROQ_API_KEY)
 
 # ===============================
 # Config
@@ -28,10 +29,10 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # ===============================
 # Load Models
 # ===============================
-# Load plant identification model
+# Plant model
 plant_model = load_model("plant_model.h5")
 
-# Load disease model (try best -> fallback to final)
+# Disease model
 if os.path.exists("best1_disease_model.h5"):
     print("✅ Loading best1_disease_model.h5")
     disease_model = load_model("best1_disease_model.h5")
@@ -67,14 +68,57 @@ def predict_plant(img_path):
     idx = np.argmax(preds)
     return plant_labels[idx], float(np.max(preds))
 
-def predict_disease(img_path):
+def predict_disease(img_path, lang="english"):
     img_array = prepare_image(img_path)
     preds = disease_model.predict(img_array)
     idx = np.argmax(preds)
     disease = disease_labels[idx]
     confidence = float(np.max(preds))
     remedy = remedies.get(disease, "No remedy available.")
-    return disease, confidence, remedy
+
+    # ✅ AI-powered remedy + preventive tips
+    ai_remedy = "AI remedy not available."
+    ai_prevention = "AI preventive tips not available."
+
+    try:
+        messages = [
+            {
+                "role": "system",
+                "content": f"""
+You are a multilingual agricultural assistant.
+Reply only in {lang}. 
+Keep the tone simple, practical, and farmer-friendly.
+Provide two sections:
+1. **Remedy** → step-by-step treatment for the disease.
+2. **Preventive Tips** → how farmers can avoid this disease in the future.
+Keep it short (5-7 lines max each).
+"""
+            },
+            {
+                "role": "user",
+                "content": f"Disease detected: {disease}. Suggest remedies and preventive tips for farmers."
+            }
+        ]
+
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=messages,
+            temperature=0.7
+        )
+        ai_text = response.choices[0].message.content.strip()
+
+        # Split remedy & preventive tips
+        if "Preventive" in ai_text:
+            parts = ai_text.split("Preventive")
+            ai_remedy = parts[0].strip()
+            ai_prevention = "Preventive" + parts[1].strip()
+        else:
+            ai_remedy = ai_text
+
+    except Exception as e:
+        ai_remedy = f"⚠️ Error fetching AI remedy: {str(e)}"
+
+    return disease, confidence, remedy, ai_remedy, ai_prevention
 
 # ===============================
 # Routes
@@ -90,6 +134,7 @@ def predict():
 
     file = request.files["file"]
     task = request.form["task"]  # "plant" or "disease"
+    lang = request.form.get("lang", "english")  # ✅ pass language
 
     if file.filename == "":
         return redirect(request.url)
@@ -106,12 +151,14 @@ def predict():
                                    confidence=confidence)
 
         elif task == "disease":
-            disease, confidence, remedy = predict_disease(filepath)
+            disease, confidence, static_remedy, ai_remedy = predict_disease(filepath, lang)
             return render_template("result_disease.html",
                                    filename=file.filename,
                                    disease=disease,
                                    confidence=confidence,
-                                   remedy=remedy)
+                                   static_remedy=static_remedy,
+                                   ai_remedy=ai_remedy,
+                                   lang=lang)
 
 # ===============================
 # Image Display Route
@@ -123,16 +170,6 @@ def display_image(filename):
 # ===============================
 # Chatbot Integration (Groq)
 # ===============================
-import os
-from groq import Groq
-
-# Load API key from environment variable
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY:
-    raise ValueError("❌ GROQ_API_KEY not set. Please set it as an environment variable.")
-
-client = Groq(api_key=GROQ_API_KEY)
-
 conversation = []
 
 @app.route("/chat", methods=["GET", "POST"])
@@ -143,26 +180,31 @@ def chat():
         user_message = request.form["message"]
         lang = request.form["lang"]
 
-        # Add user message to conversation
+        # Add user message
         conversation.append({"sender": "user", "text": user_message})
 
-        # Prepare messages for Groq API
-        messages = [
-            {
-                "role": "system",
-                "content": f"""
+        # System prompt
+        system_prompt = f"""
 You are a multilingual farming assistant.
-STRICT RULE: Reply only in {lang}. Never answer in English unless {lang} is English. Never answer in Marathi unless {lang} is Marathi. Never answer in Hindi unless {lang} is Hindi.
-             
+
+STRICT RULES:
+- Always reply in {lang}.
+- If {lang} is "marathi", reply in मराठी (देवनागरी लिपी).
+- If {lang} is "hindi", reply in हिन्दी (देवनागरी लिपी).
+- If {lang} is "english", reply in plain English.
+- Never mix English unless for common agri terms (e.g., NPK, fertilizer).
+
 Guidelines:
 - Natural, conversational tone (like ChatGPT/DeepSeek/Grok).
-- 3–5 sentences max (concise but informative).
-- No repetition of user’s question.
-- Simple, farmer-friendly advice (avoid jargon).
+- Keep answers short: 3–5 sentences max.
+- Do not repeat the user’s question.
+- Farmer-friendly, simple advice.
 - Use bullet points only when helpful.
-- Always stay supportive, clear, and practical.
+- Always supportive and clear.
 """
-            },
+
+        messages = [
+            {"role": "system", "content": system_prompt},
             *[
                 {
                     "role": "user" if msg["sender"] == "user" else "assistant",
@@ -174,7 +216,7 @@ Guidelines:
 
         try:
             response = client.chat.completions.create(
-                model="llama-3.1-8b-instant",   # ✅ updated Groq model
+                model="llama-3.1-8b-instant",
                 messages=messages,
                 temperature=0.7
             )
@@ -185,9 +227,8 @@ Guidelines:
         # Save bot reply
         conversation.append({"sender": "bot", "text": bot_reply})
 
-        return render_template("chat.html", conversation=conversation, lang=request.form.get("lang", "en"))
+        return render_template("chat.html", conversation=conversation, lang=lang)
 
-    # For GET requests, just render the chat page
     return render_template("chat.html", conversation=conversation, lang=request.args.get("lang", "en"))
 
 
