@@ -54,6 +54,9 @@ with open("models/disease_labels.json") as f:
 with open("models/remedies.json") as f:
     remedies = json.load(f)
 
+with open("models/fertilizers.json") as f:
+    fertilizers = json.load(f)
+
 # ===============================
 # Utility Functions
 # ===============================
@@ -75,6 +78,7 @@ def predict_disease(img_path, lang="english"):
     disease = disease_labels[idx]
     confidence = float(np.max(preds))
     remedy = remedies.get(disease, "No remedy available.")
+    fertilizer = fertilizers.get(disease, "No fertilizer recommendation available.")
 
     # ✅ AI-powered remedy + preventive tips
     ai_remedy = "AI remedy not available."
@@ -118,7 +122,7 @@ Keep it short (5-7 lines max each).
     except Exception as e:
         ai_remedy = f"⚠️ Error fetching AI remedy: {str(e)}"
 
-    return disease, confidence, remedy, ai_remedy, ai_prevention
+    return disease, confidence, remedy, fertilizer, ai_remedy, ai_prevention
 
 # ===============================
 # Routes
@@ -151,13 +155,15 @@ def predict():
                                    confidence=confidence)
 
         elif task == "disease":
-            disease, confidence, static_remedy, ai_remedy = predict_disease(filepath, lang)
+            disease, confidence, static_remedy, fertilizer, ai_remedy, ai_prevention = predict_disease(filepath, lang)
             return render_template("result_disease.html",
                                    filename=file.filename,
                                    disease=disease,
                                    confidence=confidence,
                                    static_remedy=static_remedy,
+                                   fertilizer=fertilizer,
                                    ai_remedy=ai_remedy,
+                                   ai_prevention=ai_prevention,
                                    lang=lang)
 
 # ===============================
