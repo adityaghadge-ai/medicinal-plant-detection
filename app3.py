@@ -6,9 +6,9 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from groq import Groq
 
-# ===============================
+
 # Load environment variables
-# ===============================
+
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
@@ -17,18 +17,18 @@ print("✅ GROQ_API_KEY found.")
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# ===============================
+
 # Config
-# ===============================
+
 UPLOAD_FOLDER = "static/uploads"
 IMG_SIZE = (224, 224)
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# ===============================
+
 # Load Models
-# ===============================
+
 # Plant model
 plant_model = load_model("plant_model.h5")
 
@@ -182,32 +182,40 @@ conversation = []
 def chat():
     global conversation
 
+    # Always force Marathi
+    lang = "marathi"
+
     if request.method == "POST":
         user_message = request.form["message"]
-        lang = request.form["lang"]
 
         # Add user message
         conversation.append({"sender": "user", "text": user_message})
 
-        # System prompt
-        system_prompt = f"""
-You are a multilingual farming assistant.
-
-STRICT RULES:
-- Always reply in {lang}.
-- If {lang} is "marathi", reply in मराठी (देवनागरी लिपी).
-- If {lang} is "hindi", reply in हिन्दी (देवनागरी लिपी).
-- If {lang} is "english", reply in plain English.
-- Never mix English unless for common agri terms (e.g., NPK, fertilizer).
-
-Guidelines:
-- Natural, conversational tone (like ChatGPT/DeepSeek/Grok).
-- Keep answers short: 3–5 sentences max.
-- Do not repeat the user’s question.
-- Farmer-friendly, simple advice.
-- Use bullet points only when helpful.
-- Always supportive and clear.
+        # System prompt (Marathi-only)
+        system_prompt = """
+तू एक शेतकरी सहाय्यक चॅटबॉट आहेस.
+नेहमी फक्त मराठीत (देवनागरी लिपी) उत्तर द्यायचे.
+भाषा सोपी, शेतकरी-मैत्रीपूर्ण ठेव.
+उत्तर जास्तीत जास्त 10-12 वाक्यांत द्यायचे.
+प्रश्नाची पुनरावृत्ती करू नकोस.
+शेतकऱ्याला मदत करणारा, मैत्रीपूर्ण आणि सोपा सूर ठेव.
+शेतकऱ्याला त्वरित उपयोग होईल असे सल्लेच द्यायचे.
+शेतकऱ्याशी बोलत असल्यासारखे नैसर्गिक बोलीभाषेत उत्तर द्या.
+शेतकऱ्याशी बोलत असल्यासारखे नैसर्गिक बोलीभाषेत उत्तर द्या.
+शेतकऱ्याशी बोलत असल्यासारखे नैसर्गिक बोलीभाषेत उत्तर द्या.
+उत्तर २-३ वाक्ये किंवा ३ बुलेट्समध्येच द्या.
+भाषा सोपी, ग्रामीण बोलीत व मैत्रीपूर्ण असावी.
+प्रश्न विचारल्यावर थेट उपयोगी उत्तर द्यायचे – अनावश्यक माहिती नको.
+उदाहरण:
+प्रश्न: "भेंडी लावू शकतो का?"
+उत्तर:
+- हो, भेंडीची लागवड करू शकतोस.
+- लागवडीसाठी जमीन ओलसर असावी.
+- साधारण २-३ दिवसात अंकुर येतील.
 """
+        system_prompt += """
+
+        """
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -228,14 +236,16 @@ Guidelines:
             )
             bot_reply = response.choices[0].message.content.strip()
         except Exception as e:
-            bot_reply = f"⚠️ Error connecting to Groq API: {str(e)}"
+            bot_reply = f"⚠️ Groq API शी कनेक्ट होण्यात अडचण आली: {str(e)}"
 
         # Save bot reply
         conversation.append({"sender": "bot", "text": bot_reply})
 
         return render_template("chat.html", conversation=conversation, lang=lang)
 
-    return render_template("chat.html", conversation=conversation, lang=request.args.get("lang", "en"))
+    # For GET requests
+    return render_template("chat.html", conversation=conversation, lang=lang)
+
 
 
 if __name__ == "__main__":
