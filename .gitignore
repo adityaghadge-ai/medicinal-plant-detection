@@ -11,6 +11,9 @@ test_samples/
 Resized Image/
 SavingNeem An image dataset for/
 *.zip
+report.json
+confusion_matrix_new.png
+
 
 # ============================
 # Virtual environment
