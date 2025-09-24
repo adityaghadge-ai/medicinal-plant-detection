@@ -7,55 +7,39 @@
 </head>
 <style>
   body {
-    background: linear-gradient(135deg, #a90335, #90bafc);
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
     color: #fff;
   }
-  .card {
-    background: #fff;
-    color: #000;
-    border-radius: 15px;
-  }
+  .card { border-radius: 15px; }
 </style>
 <body>
     <div class="container py-5 text-center">
         <h2 class="mb-4">🦠 Disease Detection Result</h2>
 
         <img src="{{ url_for('display_image', filename=filename) }}" 
-             class="img-fluid rounded shadow mb-3" 
-             style="max-width: 400px;">
+             class="img-fluid rounded shadow mb-3" style="max-width: 400px;">
 
         <h4>Disease: <span class="text-warning">{{ disease }}</span></h4>
         <p>Confidence: {{ '%.2f' % (confidence * 100) }}%</p>
 
-        <!-- Standard Remedy -->
-        <div class="card mt-4 shadow">
-            <div class="card-body">
-                <h5 class="card-title">💊 Standard Remedy</h5>
-                <p class="card-text">{{ static_remedy }}</p>
-            </div>
-        </div>
-
-        <!-- Fertilizer Recommendation -->
-        <div class="card mt-4 shadow">
+        <div class="card mt-3 shadow">
             <div class="card-body">
                 <h5 class="card-title">🌱 Recommended Fertilizer</h5>
                 <p class="card-text">{{ fertilizer }}</p>
             </div>
         </div>
 
-        <!-- AI Remedy -->
-        <div class="card mt-4 shadow">
+        <div class="card mt-3 shadow text-start">
             <div class="card-body">
                 <h5 class="card-title">🤖 AI-Powered Remedy ({{ lang|capitalize }})</h5>
-                <p class="card-text">{{ ai_remedy }}</p>
+                <div class="card-text">{{ ai_remedy|safe }}</div>
             </div>
         </div>
 
-        <!-- AI Preventive Tips -->
-        <div class="card mt-4 shadow">
+        <div class="card mt-3 shadow text-start">
             <div class="card-body">
-                <h5 class="card-title">🛡️ AI-Powered Preventive Tips</h5>
-                <p class="card-text">{{ ai_prevention }}</p>
+                <h5 class="card-title">🛡️ AI Preventive Tips</h5>
+                <div class="card-text">{{ ai_prevention|safe }}</div>
             </div>
         </div>
 

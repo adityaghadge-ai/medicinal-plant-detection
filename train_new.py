@@ -5,23 +5,25 @@ from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
-import os, cv2
+import os, json, cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
 # =============================
 # Paths
 # =============================
-BASE_DIR = "disease_dataset_split"
+BASE_DIR = "disease_dataset_split"   # new dataset
 TRAIN_DIR = os.path.join(BASE_DIR, "train")
 VAL_DIR = os.path.join(BASE_DIR, "val")
 TEST_DIR = os.path.join(BASE_DIR, "test")
+JSON_DIR = "models"                   # save JSONs here
+os.makedirs(JSON_DIR, exist_ok=True)
 
 # =============================
 # Parameters
 # =============================
 IMG_SIZE = (224, 224)
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 WARMUP_EPOCHS = 10
 FINE_TUNE_EPOCHS = 40
 LR = 1e-4
@@ -40,7 +42,6 @@ train_datagen = ImageDataGenerator(
     horizontal_flip=True,
     fill_mode="nearest"
 )
-
 val_datagen = ImageDataGenerator(rescale=1./255)
 test_datagen = ImageDataGenerator(rescale=1./255)
 
@@ -53,6 +54,14 @@ val_generator = val_datagen.flow_from_directory(
 test_generator = test_datagen.flow_from_directory(
     TEST_DIR, target_size=IMG_SIZE, batch_size=BATCH_SIZE, class_mode="categorical", shuffle=False
 )
+
+# =============================
+# Save disease class indices to JSON
+# =============================
+disease_labels = train_generator.class_indices
+with open(os.path.join(JSON_DIR, "disease_labels.json"), "w") as f:
+    json.dump(disease_labels, f, indent=4)
+print(f"✅ Disease classes saved: {disease_labels}")
 
 # =============================
 # Model (MobileNetV2 Transfer Learning)
@@ -74,11 +83,11 @@ model.compile(optimizer=Adam(learning_rate=LR), loss="categorical_crossentropy",
 callbacks = [
     EarlyStopping(monitor="val_accuracy", patience=7, restore_best_weights=True),
     ReduceLROnPlateau(monitor="val_loss", factor=0.3, patience=3, verbose=1),
-    ModelCheckpoint("best1_disease_model.h5", monitor="val_accuracy", save_best_only=True, verbose=1)
+    ModelCheckpoint("best_disease_model.h5", monitor="val_accuracy", save_best_only=True, verbose=1)
 ]
 
 # =============================
-# Warmup Training (Frozen Base)
+# Stage 1: Warmup Training
 # =============================
 print("\n🔹 Stage 1: Warmup Training (frozen base)...")
 history = model.fit(
@@ -89,7 +98,7 @@ history = model.fit(
 )
 
 # =============================
-# Fine-Tuning (Unfreeze last 50 layers)
+# Stage 2: Fine-Tuning last 50 layers
 # =============================
 print("\n🔹 Stage 2: Fine-Tuning last 50 layers...")
 for layer in base_model.layers[-50:]:
@@ -120,8 +129,6 @@ full_history = combine_history(history, history_fine)
 # Plot Training Curves
 # =============================
 plt.figure(figsize=(12,5))
-
-# Accuracy
 plt.subplot(1,2,1)
 plt.plot(full_history["accuracy"], label="Train Accuracy")
 plt.plot(full_history["val_accuracy"], label="Val Accuracy")
@@ -131,7 +138,6 @@ plt.xlabel("Epochs")
 plt.ylabel("Accuracy")
 plt.legend()
 
-# Loss
 plt.subplot(1,2,2)
 plt.plot(full_history["loss"], label="Train Loss")
 plt.plot(full_history["val_loss"], label="Val Loss")
@@ -153,44 +159,5 @@ print(f"✅ Test Accuracy: {acc*100:.2f}%")
 # =============================
 # Save Final Model
 # =============================
-model.save("final1_disease_model.h5")
+model.save("final_disease_model.h5")
 print("💾 Final fine-tuned model saved as final1_disease_model.h5")
-
-# =============================
-# Grad-CAM (Fixed)
-# =============================
-def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None):
-    grad_model = tf.keras.models.Model([model.inputs], [model.get_layer(last_conv_layer_name).output, model.output])
-    with tf.GradientTape() as tape:
-        conv_outputs, predictions = grad_model(img_array)
-        if pred_index is None:
-            pred_index = tf.argmax(predictions[0])
-        loss = predictions[:, pred_index]
-
-    grads = tape.gradient(loss, conv_outputs)[0]
-    weights = tf.reduce_mean(grads, axis=(0, 1))
-    cam = np.dot(conv_outputs[0], weights.numpy())
-
-    heatmap = np.maximum(cam, 0) / (cam.max() + 1e-8)
-    return heatmap
-
-def display_gradcam(model, img_path, last_conv_layer="Conv_1"):
-    img = cv2.imread(img_path)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img_resized = cv2.resize(img, IMG_SIZE)
-    img_array = np.expand_dims(img_resized / 255.0, axis=0)
-
-    heatmap = get_gradcam_heatmap(model, img_array, last_conv_layer)
-    heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
-
-    overlay = cv2.applyColorMap(np.uint8(255*heatmap), cv2.COLORMAP_JET)
-    superimposed = cv2.addWeighted(img, 0.6, overlay, 0.4, 0)
-
-    plt.imshow(superimposed)
-    plt.axis("off")
-    plt.show()
-
-# Example usage (test image)
-sample_img = test_generator.filepaths[0]
-print(f"🔍 Generating Grad-CAM for: {sample_img}")
-display_gradcam(model, sample_img)   

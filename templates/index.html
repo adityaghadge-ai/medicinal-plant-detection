@@ -2,38 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Plant & Disease Detection</title>
+  <title>Disease Detection</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <style>
   body {
     background: linear-gradient(135deg, #6dd5ed, #2193b0);
     color: #fff;
+    font-family: Arial, sans-serif;
   }
-  .card {
-    border-radius: 15px;
-  }
+  .card { border-radius: 15px; }
 </style>
 <body>
   <div class="container py-5">
-    <h2 class="text-center mb-4">🌱 Plant & Disease Detection</h2>
+    <h2 class="text-center mb-4">🦠 Plant Disease Detection</h2>
 
     <div class="card shadow p-4">
       <form action="/predict" method="POST" enctype="multipart/form-data">
-        
+
         <!-- Upload -->
         <div class="mb-3">
-          <label class="form-label">Upload Image</label>
+          <label class="form-label">Upload Leaf Image</label>
           <input class="form-control" type="file" name="file" required>
-        </div>
-
-        <!-- Task Selection -->
-        <div class="mb-3">
-          <label class="form-label">Choose Task</label>
-          <select class="form-select" name="task" required>
-            <option value="plant">🌿 Identify Plant</option>
-            <option value="disease">🦠 Detect Disease</option>
-          </select>
         </div>
 
         <!-- Language Selection -->
@@ -41,15 +31,15 @@
           <label class="form-label">Preferred Language</label>
           <select class="form-select" name="lang" required>
             <option value="english">English</option>
-            <option value="hindi">हिन्दी (Hindi)</option>
             <option value="marathi">मराठी (Marathi)</option>
           </select>
         </div>
 
         <!-- Submit -->
         <div class="text-center">
-          <button type="submit" class="btn btn-dark px-4">🔍 Predict</button>
+          <button type="submit" class="btn btn-dark px-4">🔍 Detect Disease</button>
         </div>
+
       </form>
     </div>
 

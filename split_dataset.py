@@ -2,39 +2,57 @@ import os
 import shutil
 import random
 
-# Paths
-DATASET_DIR = "dataset/Medicinal plant dataset"
-OUTPUT_DIR = "dataset_split"
-TRAIN_RATIO = 0.8  # 80% train, 20% test
+# ✅ Correct path to your dataset
+src_dir = r"D:\ALL PROJECTS\medicinal-plant-detection\Resized Image"
+dest_dir = r"D:\ALL PROJECTS\medicinal-plant-detection\dataset_split"
 
-# Create output folders
-train_dir = os.path.join(OUTPUT_DIR, "train")
-test_dir = os.path.join(OUTPUT_DIR, "test")
-os.makedirs(train_dir, exist_ok=True)
-os.makedirs(test_dir, exist_ok=True)
+# Split ratios
+train_split = 0.7
+val_split = 0.2
+test_split = 0.1
 
-# Loop over each class folder
-for class_name in os.listdir(DATASET_DIR):
-    class_path = os.path.join(DATASET_DIR, class_name)
-    if not os.path.isdir(class_path):
+# Create destination folders
+for split in ["train", "val", "test"]:
+    split_path = os.path.join(dest_dir, split)
+    os.makedirs(split_path, exist_ok=True)
+
+# Loop through each plant folder
+for plant in os.listdir(src_dir):
+    plant_path = os.path.join(src_dir, plant)
+    if not os.path.isdir(plant_path):
         continue
 
-    images = os.listdir(class_path)
-    random.shuffle(images)
+    # Loop through disease categories inside each plant
+    for disease in os.listdir(plant_path):
+        disease_path = os.path.join(plant_path, disease)
+        if not os.path.isdir(disease_path):
+            continue
 
-    split_idx = int(len(images) * TRAIN_RATIO)
-    train_images = images[:split_idx]
-    test_images = images[split_idx:]
+        # Create subfolders in train/val/test
+        for split in ["train", "val", "test"]:
+            os.makedirs(os.path.join(dest_dir, split, plant, disease), exist_ok=True)
 
-    # Create class dirs in train/test
-    os.makedirs(os.path.join(train_dir, class_name), exist_ok=True)
-    os.makedirs(os.path.join(test_dir, class_name), exist_ok=True)
+        # Get all images for this disease
+        images = os.listdir(disease_path)
+        random.shuffle(images)
 
-    # Move files
-    for img in train_images:
-        shutil.copy(os.path.join(class_path, img), os.path.join(train_dir, class_name, img))
+        total = len(images)
+        train_end = int(train_split * total)
+        val_end = train_end + int(val_split * total)
 
-    for img in test_images:
-        shutil.copy(os.path.join(class_path, img), os.path.join(test_dir, class_name, img))
+        # Assign splits
+        train_imgs = images[:train_end]
+        val_imgs = images[train_end:val_end]
+        test_imgs = images[val_end:]
 
-print("✅ Dataset split completed! Train and Test sets created inside 'dataset_split/'")
+        # Copy files
+        for img in train_imgs:
+            shutil.copy(os.path.join(disease_path, img), os.path.join(dest_dir, "train", plant, disease, img))
+
+        for img in val_imgs:
+            shutil.copy(os.path.join(disease_path, img), os.path.join(dest_dir, "val", plant, disease, img))
+
+        for img in test_imgs:
+            shutil.copy(os.path.join(disease_path, img), os.path.join(dest_dir, "test", plant, disease, img))
+
+print("✅ Dataset split completed! Saved in 'dataset_split/'")
