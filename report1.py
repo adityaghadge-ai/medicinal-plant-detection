@@ -5,18 +5,14 @@ from sklearn.metrics import classification_report, confusion_matrix
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-# ============================
-# CONFIG
-# ============================
+
 MODEL_PATH = "best_disease_model.h5"
 LABELS_PATH = "models/disease_labels.json"
 TEST_DIR = "disease_dataset_split/test"
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
 
-# ============================
-# Load model and labels
-# ============================
+
 model = load_model(MODEL_PATH)
 
 with open(LABELS_PATH, "r") as f:
