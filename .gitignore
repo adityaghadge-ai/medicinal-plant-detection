@@ -19,6 +19,7 @@ confusion_matrix_new.png
 # Virtual environment
 # ============================
 venv/
+a.env/
 
 # ============================
 # Uploaded / generated files
@@ -46,3 +47,4 @@ __pycache__/
 *.pyd
 *.DS_Store
 *.log
+
