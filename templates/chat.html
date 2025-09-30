@@ -4,37 +4,173 @@
   <meta charset="UTF-8">
   <title>शेतकरी चॅटबॉट</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f7c2c2, #c2e1ff);
+      /* Ensure a font that supports Marathi is used */
+      font-family: 'Arial Unicode MS', 'Noto Sans Devanagari', sans-serif; 
+    }
+    .chat-box {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+    .user { 
+      text-align: right; 
+      color: #007bff; /* Blue */
+      /* display: block; */
+    }
+    .bot { 
+      text-align: left; 
+      color: #28a745; /* Green */
+      /* display: block; */
+    }
+    .chat-message {
+      display: inline-block;
+      max-width: 85%;
+      padding: 8px 12px;
+      border-radius: 15px;
+      margin: 5px 0;
+    }
+    .user .chat-message {
+        background-color: #e0f7fa;
+    }
+    .bot .chat-message {
+        background-color: #e6ffed;
+    }
+    #voice-status {
+        min-height: 20px; /* Reserve space */
+        font-size: 0.9em;
+        color: #6c757d;
+    }
+  </style>
 </head>
-<style>
-  body {
-    background: linear-gradient(135deg, #f7c2c2, #c2e1ff);
-    font-family: "Noto Sans Devanagari", sans-serif;
-  }
-  .chat-box {
-    max-height: 400px;
-    overflow-y: auto;
-    margin-bottom: 15px;
-  }
-  .user { text-align: right; color: blue; }
-  .bot { text-align: left; color: green; }
-</style>
 <body>
   <div class="container py-4">
     <h2 class="text-center mb-3">🌾 शेतकरी सहाय्यक चॅटबॉट</h2>
 
-    <div class="chat-box border rounded p-3 bg-white shadow">
+    <div class="chat-box border rounded p-3 bg-white shadow" id="chat-box">
       {% for msg in conversation %}
         <p class="{{ msg.sender }}">
-          <strong>{{ '👨‍🌾' if msg.sender=='user' else '🤖' }}</strong> 
-          {{ msg.text }}
+          <span class="chat-message">
+            <strong>{{ '👨‍🌾' if msg.sender=='user' else '🤖' }}</strong> 
+            {{ msg.text }}
+            {% if msg.sender=='bot' %}
+                <button type="button" onclick="speakText('{{ msg.text | safe }}')" class="btn btn-sm btn-outline-success ms-2 py-0">🔊</button>
+            {% endif %}
+          </span>
         </p>
       {% endfor %}
     </div>
 
-    <form method="POST" class="d-flex">
-      <input type="text" name="message" class="form-control" placeholder="इथे संदेश लिहा..." required>
+    <form method="POST" class="d-flex" id="chat-form">
+      <input type="text" name="message" id="user-message" class="form-control" placeholder="इथे संदेश लिहा... (तुम्ही 'clear' टाइप करून संभाषण साफ करू शकता)" required>
+      <button type="button" id="voice-input-btn" class="btn btn-info ms-2" title="आवाजाद्वारे संदेश टाइप करा">🎤</button>
       <button type="submit" class="btn btn-success ms-2">पाठवा</button>
     </form>
+    
+    <p id="voice-status" class="text-center mt-2"></p>
   </div>
+
+  <script>
+    // --- 1. Text-to-Speech (TTS) Function ---
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            // Use Marathi (India) voice for best result
+            utterance.lang = 'mr-IN'; 
+            window.speechSynthesis.cancel(); // Stop any current speaking
+            window.speechSynthesis.speak(utterance);
+        } else {
+            // Fallback for browsers without TTS
+            console.warn('Your browser does not support Text-to-Speech.');
+        }
+    }
+
+    // --- 2. Speech-to-Text (STT) Function ---
+    const voiceInputBtn = document.getElementById('voice-input-btn');
+    const userMessageInput = document.getElementById('user-message');
+    const voiceStatus = document.getElementById('voice-status');
+
+    // Check for Web Speech API support (prefixed version is common)
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false; // Stop after a single phrase
+        recognition.interimResults = false;
+        recognition.lang = 'mr-IN'; // Listen for Marathi
+
+        voiceInputBtn.addEventListener('click', () => {
+            // Stop TTS if it's running
+            window.speechSynthesis.cancel(); 
+            
+            try {
+                recognition.start();
+                voiceStatus.textContent = "🎙️ बोलणे सुरू करा. (मराठीत)";
+                voiceInputBtn.disabled = true;
+                voiceInputBtn.classList.add('btn-danger'); // Change color to indicate listening
+            } catch (e) {
+                // Ignore start error if already running
+                if (e.name !== 'InvalidStateError') {
+                    console.error("Speech Recognition Error:", e);
+                }
+            }
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            userMessageInput.value = transcript;
+            voiceStatus.textContent = "✅ संदेश: " + transcript;
+            voiceInputBtn.disabled = false;
+            voiceInputBtn.classList.remove('btn-danger');
+        };
+
+        recognition.onerror = (event) => {
+            console.error(event);
+            let error_msg = "❌ आवाज ओळखण्यात त्रुटी.";
+            if (event.error === 'not-allowed') {
+                 error_msg = "❌ मायक्रोफोन परवानगी नाकारली.";
+            } else if (event.error === 'no-speech') {
+                 error_msg = "❌ काही आवाज ओळखला गेला नाही.";
+            }
+            voiceStatus.textContent = error_msg + " पुन्हा प्रयत्न करा.";
+            voiceInputBtn.disabled = false;
+            voiceInputBtn.classList.remove('btn-danger');
+        };
+
+        recognition.onend = () => {
+             // Reset state after recognition stops (if not already reset by onresult/onerror)
+            if(voiceInputBtn.disabled) {
+                voiceStatus.textContent = "";
+                voiceInputBtn.disabled = false;
+                voiceInputBtn.classList.remove('btn-danger');
+            }
+        };
+
+    } else {
+        // Disable mic button if STT not supported
+        voiceInputBtn.style.display = 'none';
+        voiceStatus.textContent = "❌ तुमचा ब्राउझर व्हॉइस इनपुटला सपोर्ट करत नाही.";
+    }
+
+    // --- 3. Auto-scroll and Auto-speak on Load ---
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const chatBox = document.getElementById('chat-box');
+        // Scroll to the latest message
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        // Auto-speak the latest bot reply on load (only if there is a conversation)
+        const latestBotMsg = document.querySelector('.bot:last-child .chat-message');
+        if (latestBotMsg) {
+             // Get the text content, excluding the text of the speak button itself
+            const textNodes = Array.from(latestBotMsg.childNodes).filter(node => node.nodeType === 3); // 3 = TEXT_NODE
+            let textToSpeak = textNodes.map(node => node.textContent.trim()).join(' ').trim();
+
+            if (textToSpeak) {
+                speakText(textToSpeak);
+            }
+        }
+    });
+
+  </script>
 </body>
 </html>
