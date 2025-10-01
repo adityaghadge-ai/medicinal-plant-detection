@@ -2,8 +2,7 @@ from dotenv import load_dotenv
 import os, json, re, requests
 import numpy as np
 from flask import Flask, request, render_template, redirect, url_for
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+# NOTE: The Groq import is implicitly used by all AI features.
 from groq import Groq
 
 # =============================
@@ -30,14 +29,14 @@ app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # =============================
-# Custom Jinja Filter (FIX FOR 'nl2br' ERROR)
+# Custom Jinja Filter
 # =============================
 def nl2br_filter(s):
-    """Converts newlines to HTML breaks."""
+    """Converts newlines to HTML breaks and removes markdown formatting."""
     if s is not None:
-        # Also convert common numbered list patterns to unordered list for better formatting
-        s = re.sub(r'(\d+\.\s+)', r'\n- ', s).strip()
-        # Replace remaining newlines with HTML breaks
+        # Remove markdown bold/italic tags so they don't appear as literal stars
+        s = s.replace('**', '').replace('*', '') 
+        # Convert newlines to HTML breaks
         return s.replace('\n', '<br>')
     return ''
 
@@ -48,6 +47,10 @@ app.jinja_env.filters['nl2br'] = nl2br_filter
 # Load Models
 # =============================
 try:
+    # NOTE: Keras is required here but the import was removed in the user-provided code block,
+    # re-adding necessary imports.
+    from tensorflow.keras.models import load_model
+    from tensorflow.keras.preprocessing.image import load_img, img_to_array
     disease_model = load_model("best_disease_model.h5")
 except Exception as e:
     print(f"Warning: Could not load disease model: {e}")
@@ -74,6 +77,8 @@ except Exception as e:
 # Helper Functions
 # =============================
 def prepare_image(img_path):
+    # This function relies on imports that need to be available if the model is loaded.
+    from tensorflow.keras.preprocessing.image import load_img, img_to_array
     img = load_img(img_path, target_size=IMG_SIZE)
     img_array = img_to_array(img) / 255.0
     return np.expand_dims(img_array, axis=0)
@@ -90,6 +95,7 @@ def predict_disease(img_path, lang="english"):
         return "Model Error", 0.0, "Model not loaded.", "Error: Disease model not loaded.", "Error: Disease model not loaded."
         
     img_array = prepare_image(img_path)
+    # The original implementation uses np.argmax and a model.predict call 
     preds = disease_model.predict(img_array)
     idx = int(np.argmax(preds))
     disease = disease_labels.get(idx, "Unknown Disease")
@@ -133,7 +139,6 @@ def predict_disease(img_path, lang="english"):
     return disease, confidence, fertilizer, ai_remedy, ai_prevention
 
 
-# New function to get AI-powered weather insights
 def get_weather_insights(weather_data):
     if not GROQ_API_KEY:
         return "AI insights not available. GROQ_API_KEY not set."
@@ -156,7 +161,7 @@ def get_weather_insights(weather_data):
 
     try:
         messages = [
-            {"role": "system", "content": "You are a farmer-friendly AI weather assistant. Keep the language simple."},
+            {"role": "system", "content": "You are a farmer-friendly AI weather assistant. Keep the language simple and do not use markdown characters like **."},
             {"role": "user", "content": prompt}
         ]
         response = client.chat.completions.create(
@@ -241,19 +246,18 @@ def chat():
     return render_template("chat.html", conversation=conversation, lang=lang)
 
 # =============================
-# 🌦 Weather Route (Updated for AI)
+# 🌦 Weather Route
 # =============================
 @app.route("/weather", methods=["GET", "POST"]) 
 def weather():
     if request.method == "POST":
         city = request.form.get("city")
-    else: # Default city for GET request or initial load
+    else: 
         city = request.args.get("city", "Pune")
         
     if not OPENWEATHER_API:
         return render_template("weather.html", error="OPENWEATHER_API key not set in .env")
 
-    # API call to OpenWeatherMap
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city},in&appid={OPENWEATHER_API}&units=metric"
     
     try:
@@ -261,10 +265,9 @@ def weather():
         data = res.json()
         
         if data.get("cod") != 200:
-            error_message = data.get("message", "Unable to fetch weather data. Check city name.")
+            error_message = data.get("message", f"City '{city}' not found or API error.")
             return render_template("weather.html", error=error_message)
         
-        # Extract basic weather info
         weather_info = {
             "city": data["name"],
             "temperature": data["main"]["temp"],
@@ -275,17 +278,139 @@ def weather():
             "pressure": data["main"]["pressure"]
         }
         
-        # Get AI Insights
         ai_insights = get_weather_insights(weather_info)
 
-        # Render the results
         return render_template("weather.html", 
                                weather=weather_info, 
                                ai_insights=ai_insights)
     
     except Exception as e:
-        # Catch unexpected errors during the process
         return render_template("weather.html", error=f"An unexpected error occurred: {str(e)}")
+
+# =============================
+# 💰 Market Price Tracker
+# =============================
+@app.route("/market", methods=["GET", "POST"])
+def market_price():
+    prices = None
+    if request.method == "POST":
+        commodity = request.form.get("commodity")
+        city = request.form.get("city")
+        
+        try:
+            prompt = f"""
+            You are an agricultural market data assistant. Provide the current market price (or recent trend) for {commodity} in the Indian city of {city}.
+            The price should be a reasonable, simulated rate in INR per quintal/kg for a farmer, as if you had just checked a recent mandi report.
+            Format your response as a simple paragraph, followed by a detailed, numbered list of 3-4 factors currently influencing the price.
+            Do not use markdown formatting (like **).
+            Example Response:
+            The estimated wholesale price for tomatoes in Pune today is ₹2,000 to ₹2,500 per quintal.
+            1. Factor 1: ...
+            2. Factor 2: ...
+            3. Factor 3: ...
+            """
+            messages = [
+                {"role": "system", "content": "You are a concise, accurate market analyst. Do not use markdown characters like **."},
+                {"role": "user", "content": prompt}
+            ]
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=messages,
+                temperature=0.5
+            )
+            prices = response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            prices = f"⚠️ Error fetching market data: {str(e)}"
+            
+    return render_template("market.html", prices=prices)
+
+# =============================
+# 🌱 Soil Health & Fertilizer Guidance
+# =============================
+@app.route("/soil", methods=["GET", "POST"])
+def soil_guidance():
+    recommendations = None
+    if request.method == "POST":
+        ph = request.form.get("ph")
+        crop = request.form.get("crop")
+        nitrogen = request.form.get("nitrogen")
+        phosphorus = request.form.get("phosphorus")
+        potassium = request.form.get("potassium")
+        
+        try:
+            soil_data = f"pH: {ph}, Target Crop: {crop}, N (Nitrogen): {nitrogen} kg/ha, P (Phosphorus): {phosphorus} kg/ha, K (Potassium): {potassium} kg/ha."
+
+            prompt = f"""
+            You are a certified soil health expert. Provide a comprehensive fertilizer guidance report based on the following data.
+            Soil Test Data: {soil_data}
+            
+            Provide three distinct sections, clearly labeled:
+            1. ANALYSIS: (A brief interpretation of the soil data, stating if the pH is good, and if NPK levels are low/medium/high for the target crop.)
+            2. FERTILIZER RECOMMENDATION: (Specify the exact NPK ratio and recommended quantity (in kg/ha or grams/plant for small scale) and timing. Suggest a specific type of organic or chemical fertilizer if appropriate.)
+            3. CULTIVATION TIPS: (Provide 2-3 specific, actionable tips to improve soil health for the next cycle, focusing on the current deficiencies.)
+            Do not use markdown formatting (like **).
+            """
+            messages = [
+                {"role": "system", "content": "You are a detailed, science-based agricultural consultant. Keep the tone helpful and do not use markdown characters like **."},
+                {"role": "user", "content": prompt}
+            ]
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=messages,
+                temperature=0.6
+            )
+            recommendations = response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            recommendations = f"⚠️ Error fetching recommendations: {str(e)}"
+            
+    return render_template("soil.html", recommendations=recommendations)
+
+# =============================
+# 📅 Dynamic Farming Action Planner (NEW NOVELTY FEATURE)
+# =============================
+@app.route("/planner", methods=["GET", "POST"])
+def planner():
+    plan = None
+    if request.method == "POST":
+        crop = request.form.get("crop")
+        stage = request.form.get("stage")
+        city = request.form.get("city")
+        
+        try:
+            prompt = f"""
+            You are a Dynamic Farming Action Planner. Create a prioritized, scheduled action plan for a farmer over the next 72 hours (3 days).
+            
+            Synthesize the plan based on these critical factors:
+            1. Crop: {crop}
+            2. Current Growth Stage: {stage}
+            3. Location: {city} (Assume typical 72-hour forecast and market stability for this city/crop.)
+            
+            The plan must address both AGRONOMIC RISK (weather/disease) and ECONOMIC OPPORTUNITY (market).
+            
+            Provide the output in three distinct sections, clearly labeled:
+            1. RISK ASSESSMENT: (Summary of the next 72 hours, focusing on potential weather-related diseases, pests, or market volatility.)
+            2. 72-HOUR ACTION PLAN: (A numbered, scheduled list of actions, specifying the day (Day 1, Day 2, Day 3) and action type (Harvest Prep, Spraying, Irrigation, Soil Care). This is the main output.)
+            3. RESOURCE CHECK: (2-3 quick reminders for required inputs like fertilizer stock or labor for harvest.)
+            Do not use markdown formatting (like **).
+            """
+            messages = [
+                {"role": "system", "content": "You are a detailed, proactive farming scheduler. Do not use markdown characters like **."},
+                {"role": "user", "content": prompt}
+            ]
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=messages,
+                temperature=0.7
+            )
+            plan = response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            plan = f"⚠️ Error generating action plan: {str(e)}"
+            
+    return render_template("planner.html", plan=plan)
+
 
 # =============================
 # Run App
