@@ -8,7 +8,7 @@ from groq import Groq
 # =============================
 # Load environment variables
 # =============================
-# 🚨 Using dotenv_path='a.env' based on your file structure
+# 🚨 Using dotenv_path='a.env' 
 load_dotenv(dotenv_path='a.env') 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
