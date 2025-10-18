@@ -9,141 +9,132 @@
 <style>
   * {
     box-sizing: border-box;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  @keyframes gradientFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+    margin: 0;
+    padding: 0;
   }
 
   body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
-    background-size: 300% 300%;
-    animation: gradientFlow 12s ease infinite;
-    color: #fff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9fa;
+    color: #212529;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
     min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
-    will-change: background-position;
   }
-  
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.05) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
+
+  .header {
+    background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+    color: white;
+    padding: 2rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .header p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.95;
+    font-size: 0.95rem;
   }
 
   .container {
-    position: relative;
-    z-index: 1;
-    animation: fadeIn 0.6s ease-out;
+    max-width: 1200px;
+    padding: 0 1rem;
   }
 
-  h2 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-    margin-bottom: 3rem;
+  .main-content {
+    padding: 2rem 0;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d6a4f;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #2d6a4f;
   }
 
   .card { 
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    will-change: transform;
-  }
-  
-  .card::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
-    border-radius: 20px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-    z-index: 0;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: box-shadow 0.2s ease;
+    margin-bottom: 1.5rem;
+    height: 100%;
   }
   
   .card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-  }
-  
-  .card:hover::after {
-    opacity: 1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   }
 
   .card-body { 
-    color: #2c3e50;
-    position: relative;
-    z-index: 1;
+    padding: 1.5rem;
   }
   
-  .card h4 {
-    font-weight: 700;
-    color: #667eea;
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .card-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
   }
 
   .form-control, .form-select {
-    border-radius: 12px;
-    border: 2px solid #e0e0e0;
-    padding: 10px 16px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.95rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
   
   .form-control:focus, .form-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    border-color: #40916c;
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.15);
     outline: none;
   }
 
+  .form-control::placeholder {
+    color: #adb5bd;
+  }
+
   .btn {
-    border-radius: 12px;
-    padding: 11px 28px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.2s ease;
+    border-radius: 6px;
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.15s ease;
     border: none;
-    position: relative;
-    overflow: hidden;
+    cursor: pointer;
   }
   
   .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
   
   .btn:active {
@@ -151,73 +142,80 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2d6a4f;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #245943;
   }
   
   .btn-success {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: #40916c;
+    color: white;
+  }
+
+  .btn-success:hover {
+    background: #367d5c;
   }
   
   .btn-info {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  }
-  
-  .btn-danger {
-    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+    background: #0077b6;
     color: white;
   }
 
+  .btn-info:hover {
+    background: #006399;
+  }
+  
   .btn-warning {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #f77f00;
     color: white;
+  }
+
+  .btn-warning:hover {
+    background: #dc6f00;
+  }
+
+  .btn-danger {
+    background: #d62828;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #ba2323;
   }
   
   .btn-dark {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    background: #343a40;
+    color: white;
   }
 
-  .emoji-icon {
-    display: inline-block;
-    font-size: 2.8rem;
-    margin-bottom: 1rem;
-    animation: float 4s ease-in-out infinite;
-  }
-  
-  .feature-card:nth-child(1) .emoji-icon { animation-delay: 0s; }
-  .feature-card:nth-child(2) .emoji-icon { animation-delay: 0.7s; }
-  .feature-card:nth-child(3) .emoji-icon { animation-delay: 1.4s; }
-
-  .dfap-card {
-    background: linear-gradient(135deg, rgba(255, 221, 225, 0.95), rgba(255, 153, 153, 0.95));
-    border: 2px solid #f5576c;
-    box-shadow: 0 12px 30px rgba(245, 87, 108, 0.3);
-  }
-  
-  .dfap-card h4 {
-    color: #c91b3a;
+  .btn-dark:hover {
+    background: #23272b;
   }
 
-  #soil-form-collapse {
-    animation: fadeIn 0.4s ease-out;
+  .priority-card {
+    border-left: 4px solid #d62828;
+    background: #fff5f5;
   }
-  
-  .text-secondary {
-    color: #6c757d !important;
+
+  .priority-card .card-title {
+    color: #d62828;
   }
-  
-  .chatbot-float {
+
+  .chatbot-btn {
     position: fixed;
-    bottom: 25px;
-    right: 25px;
+    bottom: 2rem;
+    right: 2rem;
     z-index: 1000;
-    animation: float 3s ease-in-out infinite;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   }
   
-  .chatbot-float .btn {
+  .chatbot-btn .btn {
     border-radius: 50px;
-    padding: 14px 32px;
-    font-size: 1.05rem;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
   }
 
   .loader-modal {
@@ -228,231 +226,278 @@
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.5);
     align-items: center;
     justify-content: center;
   }
   
   .loader-content {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    padding: 40px;
-    border-radius: 20px;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
     text-align: center;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.4);
-    animation: fadeIn 0.3s ease-out;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     max-width: 400px;
     width: 90%;
   }
   
   .spinner-border {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-width: 4px;
-    color: #667eea;
+    width: 3rem;
+    height: 3rem;
+    border-width: 3px;
+    color: #40916c;
   }
   
   .loader-content h5 {
-    color: #2c3e50;
-    margin-top: 20px;
+    color: #212529;
+    margin-top: 1rem;
     font-weight: 600;
+    font-size: 1.1rem;
   }
 
-  .stagger-1 { animation: fadeIn 0.5s ease-out 0.1s backwards; }
-  .stagger-2 { animation: fadeIn 0.5s ease-out 0.2s backwards; }
-  .stagger-3 { animation: fadeIn 0.5s ease-out 0.3s backwards; }
+  .loader-content p {
+    color: #6c757d;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .collapse-toggle {
+    cursor: pointer;
+    user-select: none;
+  }
 
   @media (max-width: 768px) {
-    h2 {
-      font-size: 1.75rem;
-      margin-bottom: 2rem;
+    .header h1 {
+      font-size: 1.5rem;
+    }
+
+    .header p {
+      font-size: 0.875rem;
     }
     
-    .emoji-icon {
-      font-size: 2.2rem;
+    .main-content {
+      padding: 1.5rem 0;
+    }
+
+    .card-body {
+      padding: 1.25rem;
     }
     
-    .chatbot-float {
-      bottom: 15px;
-      right: 15px;
+    .chatbot-btn {
+      bottom: 1rem;
+      right: 1rem;
     }
     
-    .chatbot-float .btn {
-      padding: 12px 24px;
-      font-size: 0.95rem;
+    .chatbot-btn .btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+  @media (max-width: 576px) {
+    .btn {
+      width: 100%;
+      margin-top: 0.5rem;
     }
   }
 </style>
 <body>
-  <div class="container py-5">
-    <h2 class="text-center mb-5">🦠 Plant Disease Detection & Farmer Assistant</h2>
+  <div class="header">
+    <div class="container">
+      <h1>🌾 Plant Disease Detection & Farmer Assistant</h1>
+      <p>Smart farming tools to help you make better decisions</p>
+    </div>
+  </div>
 
-    <!-- DFAP Card -->
-    <div class="card shadow-lg p-4 mb-5 dfap-card">
-        <div class="card-body">
-            <h4 class="text-center mb-3">📅 Dynamic Farming Action Planner (DFAP)</h4>
-            <p class="text-secondary text-center fw-bold mb-4">Get a prioritized, scheduled 72-hour action plan based on risk and growth stage.</p>
-            <form action="/planner" method="POST" class="ai-form">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <input type="text" class="form-control" name="crop" placeholder="Crop Name (e.g., Cotton)" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <input type="text" class="form-control" name="stage" placeholder="Growth Stage (e.g., Flowering)" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <input type="text" class="form-control" name="city" placeholder="City/Region (e.g., Nagpur)" required>
-                    </div>
-                </div>
-                <div class="text-center mt-2">
-                    <button type="submit" class="btn btn-danger px-5 w-100">⚡ Generate 72-Hour Plan</button>
-                </div>
+  <div class="container main-content">
+    
+    <!-- Priority Action Planner -->
+    <div class="section-title">📅 72-Hour Action Planner</div>
+    <div class="card priority-card">
+      <div class="card-body">
+        <div class="card-title">
+          <span class="card-icon">⚡</span>
+          Dynamic Farming Action Plan
+        </div>
+        <p class="card-description">Get a scheduled action plan based on weather, crop stage, and risk factors for the next 3 days</p>
+        <form action="/planner" method="POST" class="ai-form">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Crop Name</label>
+              <input type="text" class="form-control" name="crop" placeholder="e.g., Cotton, Wheat" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Growth Stage</label>
+              <input type="text" class="form-control" name="stage" placeholder="e.g., Flowering" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Your Location</label>
+              <input type="text" class="form-control" name="city" placeholder="e.g., Nagpur" required>
+            </div>
+          </div>
+          <div class="text-end mt-3">
+            <button type="submit" class="btn btn-danger">Generate Action Plan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Quick Tools -->
+    <div class="section-title">🛠️ Quick Tools</div>
+    <div class="row g-3">
+      
+      <!-- Weather -->
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="card-title">
+              <span class="card-icon">☁️</span>
+              Weather Insights
+            </div>
+            <p class="card-description">Check weather conditions and get farming recommendations</p>
+            <form action="/weather" method="POST" class="ai-form">
+              <div class="mb-3">
+                <label class="form-label">City Name</label>
+                <input type="text" class="form-control" name="city" placeholder="e.g., Pune" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Check Weather</button>
             </form>
+          </div>
         </div>
+      </div>
+
+      <!-- Market Price -->
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="card-title">
+              <span class="card-icon">💰</span>
+              Market Prices
+            </div>
+            <p class="card-description">Track commodity prices and market trends</p>
+            <form action="/market" method="POST" class="ai-form">
+              <div class="mb-3">
+                <label class="form-label">Commodity</label>
+                <input type="text" class="form-control" name="commodity" placeholder="e.g., Tomato" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Market Location</label>
+                <input type="text" class="form-control" name="city" placeholder="e.g., Pune" required>
+              </div>
+              <button type="submit" class="btn btn-success w-100">Get Prices</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Soil Health -->
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="card-title">
+              <span class="card-icon">🌱</span>
+              Soil Health Check
+            </div>
+            <p class="card-description">Get fertilizer recommendations based on soil test results</p>
+            <button class="btn btn-info w-100" type="button" data-bs-toggle="collapse" data-bs-target="#soil-form-collapse">
+              Enter Soil Data
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Main Features Row -->
-    <div class="row mb-5">
-        <!-- Weather Checker -->
-        <div class="col-md-4 mb-4 stagger-1">
-            <div class="card shadow-lg p-4 h-100 feature-card">
-                <div class="card-body text-center">
-                    <div class="emoji-icon">☁️</div>
-                    <h4 class="mb-3">Check Weather</h4>
-                    <form action="/weather" method="POST" class="ai-form">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" name="city" placeholder="🏙️ Enter City (e.g., Pune)" required>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary px-4 w-100">🌦️ Get Insights</button>
-                        </div>
-                    </form>
-                </div>
+    <!-- Soil Form (Collapsible) -->
+    <div class="collapse mt-3" id="soil-form-collapse">
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">
+            <span class="card-icon">🔬</span>
+            Soil Test Analysis
+          </div>
+          <form action="/soil" method="POST" class="ai-form">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">pH Level</label>
+                <input type="number" step="0.1" class="form-control" name="ph" placeholder="e.g., 6.5" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Crop Type</label>
+                <input type="text" class="form-control" name="crop" placeholder="e.g., Wheat" required>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">N (kg/ha)</label>
+                <input type="number" class="form-control" name="nitrogen" placeholder="e.g., 120" required>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">P (kg/ha)</label>
+                <input type="number" class="form-control" name="phosphorus" placeholder="e.g., 60" required>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">K (kg/ha)</label>
+                <input type="number" class="form-control" name="potassium" placeholder="e.g., 40" required>
+              </div>
             </div>
-        </div>
-
-        <!-- Market Price Tracker -->
-        <div class="col-md-4 mb-4 stagger-2">
-            <div class="card shadow-lg p-4 h-100 feature-card">
-                <div class="card-body text-center">
-                    <div class="emoji-icon">💰</div>
-                    <h4 class="mb-3">Market Price Tracker</h4>
-                    <form action="/market" method="POST" class="ai-form">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" name="commodity" placeholder="🌾 Commodity (e.g., Tomato)" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="text" class="form-control" name="city" placeholder="🏙️ City (e.g., Pune)" required>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-success px-4 w-100">📈 Get Trend</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="text-end mt-3">
+              <button type="submit" class="btn btn-warning">Get Recommendations</button>
             </div>
+          </form>
         </div>
-
-        <!-- Soil Health Guidance -->
-        <div class="col-md-4 mb-4 stagger-3">
-            <div class="card shadow-lg p-4 h-100 d-flex flex-column justify-content-center align-items-center feature-card">
-                <div class="card-body text-center w-100">
-                    <div class="emoji-icon">🌱</div>
-                    <h4>Soil Health Guidance</h4>
-                    <p class="text-secondary mb-4">Enter your NPK/pH data for fertilizer advice.</p>
-                    <button class="btn btn-info px-4 w-100" type="button" data-bs-toggle="collapse" data-bs-target="#soil-form-collapse" aria-expanded="false">
-                      🧪 Start Guidance
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Soil Guidance Form (Collapsible) -->
-    <div class="collapse mb-5" id="soil-form-collapse">
-        <div class="card shadow-lg p-4">
-            <div class="card-body">
-                <h4 class="text-center mb-4">🔬 Enter Soil Test Data</h4>
-                <form action="/soil" method="POST" class="ai-form">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <input type="number" step="0.1" class="form-control" name="ph" placeholder="📊 pH (e.g., 6.5)" required>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <input type="text" class="form-control" name="crop" placeholder="🌾 Crop (e.g., Wheat)" required>
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <input type="number" class="form-control" name="nitrogen" placeholder="N (kg/ha)" required>
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <input type="number" class="form-control" name="phosphorus" placeholder="P (kg/ha)" required>
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <input type="number" class="form-control" name="potassium" placeholder="K (kg/ha)" required>
-                        </div>
-                    </div>
-                    <div class="text-center mt-2">
-                        <button type="submit" class="btn btn-warning px-5">🔬 Get AI Recommendations</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+      </div>
     </div>
     
-    <!-- Disease Detection Section -->
-    <div class="card shadow-lg p-4 mb-5">
+    <!-- Disease Detection -->
+    <div class="section-title mt-4">🔍 Disease Detection</div>
+    <div class="card">
       <div class="card-body">
-        <div class="text-center mb-4">
-          <div class="emoji-icon">🔍</div>
-          <h4>Plant Disease Detector</h4>
+        <div class="card-title">
+          <span class="card-icon">📸</span>
+          Plant Disease Detector
         </div>
+        <p class="card-description">Upload a photo of your plant's leaf to identify diseases and get treatment advice</p>
         <form action="/predict" method="POST" enctype="multipart/form-data" class="ai-form">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold">📷 Upload Leaf Image</label>
-              <input class="form-control" type="file" name="file" required>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Upload Leaf Photo</label>
+              <input class="form-control" type="file" name="file" accept="image/*" required>
+              <small class="text-muted">Supported: JPG, PNG (max 5MB)</small>
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold">🌐 Preferred Language</label>
+            <div class="col-md-6">
+              <label class="form-label">Language Preference</label>
               <select class="form-select" name="lang" required>
                 <option value="english">English</option>
                 <option value="marathi">मराठी (Marathi)</option>
               </select>
             </div>
           </div>
-          <div class="text-center mt-2">
-            <button type="submit" class="btn btn-dark px-5">🔍 Detect Disease</button>
+          <div class="text-end mt-3">
+            <button type="submit" class="btn btn-dark">Detect Disease</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Chatbot Floating Button -->
-    <div class="chatbot-float">
-      <a href="/chat" class="btn btn-warning shadow-lg">💬 Farming Chatbot</a>
+    <!-- Chatbot Button -->
+    <div class="chatbot-btn">
+      <a href="/chat" class="btn btn-warning">💬 Ask Farming Questions</a>
     </div>
   </div>
   
   <!-- Loading Modal -->
   <div id="loadingModal" class="loader-modal">
-      <div class="loader-content">
-          <div class="spinner-border" role="status">
-              <span class="visually-hidden">Loading...</span>
-          </div>
-          <h5>Generating AI Insights...</h5>
-          <p class="text-secondary mb-0">This might take a moment. Please wait.</p>
+    <div class="loader-content">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
+      <h5>Processing your request...</h5>
+      <p>Please wait while we analyze the data</p>
+    </div>
   </div>
   
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   
   <script>
@@ -460,18 +505,8 @@
     const aiForms = document.querySelectorAll('.ai-form');
 
     aiForms.forEach(form => {
-        form.addEventListener('submit', function() {
-            loadingModal.style.display = 'flex';
-        });
-    });
-    
-    document.querySelectorAll('.card').forEach(card => {
-      card.addEventListener('mouseenter', function() {
-        this.style.zIndex = '10';
-      });
-      
-      card.addEventListener('mouseleave', function() {
-        this.style.zIndex = '1';
+      form.addEventListener('submit', function() {
+        loadingModal.style.display = 'flex';
       });
     });
   </script>
