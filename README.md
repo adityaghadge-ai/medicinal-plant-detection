@@ -1,77 +1,144 @@
-🌿 Medicinal Plant Detection
+🌿 Medicinal Plant Disease Detection & AI Farmer Assistant
 
-This project detects medicinal plants from images using deep learning.  
-Built with **Python, TensorFlow/Keras, Flask** for web deployment.
+An AI-powered smart agriculture system for medicinal plant disease detection, fertilizer guidance, weather insights, and farmer-friendly multilingual assistance.
 
----
+This project combines Deep Learning, Computer Vision, and Generative AI to support precision agriculture and medicinal plant health monitoring.
 
-## 📂 Project Structure
+🚀 Key Features
+🔍 Disease Detection (Deep Learning)
+
+MobileNetV2-based CNN (Transfer Learning + Fine-tuning)
+
+Detects healthy vs diseased medicinal plant leaves
+
+Confidence score with prediction
+
+Trained on AI-MedLeafX (2025) dataset
+
+🌱 AI-Powered Remedies & Prevention
+
+Automatic fertilizer recommendations
+
+AI-generated remedies & preventive measures
+
+Farmer-friendly language (English / Marathi)
+
+🌦 Weather Intelligence
+
+Real-time weather via OpenWeather API
+
+AI-based agricultural alerts & cultivation tips
+
+📅 72-Hour Farming Action Planner (Novel Feature)
+
+Crop-stage–aware action plan
+
+Risk assessment + scheduled tasks
+
+Market & weather-aware decisions
+
+💬 Multilingual Farmer Chatbot
+
+Marathi voice + text support
+
+Speech-to-text & text-to-speech
+
+Groq LLM–powered responses
+
+
+🧠 Tech Stack
+
+Deep Learning: TensorFlow / Keras (MobileNetV2)
+
+Backend: Flask (Python)
+
+Frontend: HTML, Bootstrap, JavaScript
+
+AI APIs: Groq (LLMs), OpenWeather
+
+Computer Vision: OpenCV
+
+Deployment Ready: Modular & scalable
+
+
+
+📂 Project Structure
 medicinal-plant-detection/
-│── dataset/ # Training dataset (ignored in git, share separately)
-│── dataset_split/ # Train/test split (generated)
-│── models/ # Saved models & class_labels.json
-│── static/uploads/ # Uploaded images (runtime only)
-│── templates/ # Flask HTML templates
-│── test_images/ # Test images (ignored in git)
-│── test_samples/ # Sample images for testing
-│── app.py # Flask web app
-│── train.py # Model training script
-│── predict.py # Script for inference
-│── requirements.txt # Dependencies
+│── dataset/                  # Original dataset (not pushed to GitHub)
+│── dataset_split/            # Train / Val / Test split
+│── disease_dataset_split/    # Disease-wise organized dataset
+│── models/                   # JSON configs (labels, fertilizers)
+│── static/uploads/           # Runtime uploads
+│── templates/                # Flask HTML templates
+│── test_samples/             # Sample images
+│── train.py                  # Model training
+│── app.py                    # Flask web app
+│── requirements.txt
 │── .gitignore
+│── README.md
 
-## ⚡ Setup Instructions
 
-### 1. Clone the Repository
-```bash
+
+📊 Dataset Used
+
+AI-MedLeafX: A Large-Scale Computer Vision Dataset for Medicinal Plant Diagnosis (2025)
+
+10,858 original images
+
+65,178 augmented images
+
+4 medicinal plant species
+
+Multiple disease categories
+
+📄 DOI: 10.17632/zz7r5y4dc6.1
+
+
+⚙️ Setup Instructions
+1️⃣ Clone Repository
 git clone https://github.com/adityaghadge-ai/medicinal-plant-detection.git
 cd medicinal-plant-detection
-2. Create Virtual Environment (Recommended)
-bash
-Copy
-Edit
+
+2️⃣ Create Virtual Environment
 python -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate      # Windows
-3. Install Dependencies
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Linux/Mac
+
+3️⃣ Install Dependencies
 pip install -r requirements.txt
 
-4. Add Dataset
+3️⃣ Install Dependencies
+pip install -r requirements.txt
 
-⚠️ Dataset is not included in the repo (too large).
-Ask the project owner to share dataset/, test_images/, etc.
-Place them inside the project root folder:
-
-medicinal-plant-detection/
-    ├── dataset/
-    ├── test_images/
-    ├── ...
-
-5. Train the Model
+5️⃣ Train the Model
 python train.py
 
-6. Run Prediction
-python predict.py --image test_samples/40.jpg
-
-7. Run Web App
+6️⃣ Run Web App
 python app.py
 
 
-Then open http://127.0.0.1:5000
- in your browser.
+Open browser:
+👉 http://127.0.0.1:5000
+
+
+📌 Future Improvements
+
+🔹 Increase accuracy beyond 99%
+
+🔹 Add fertilizer prediction model
+
+🔹 Deploy on cloud (AWS / Streamlit)
+
+🔹 Mobile app integration
+
+🔹 Edge deployment for farmers
+
 
 🤝 Collaboration
 
-Code is shared via GitHub.
+Code is open-source on GitHub
 
-Datasets should be shared separately (Google Drive/OneDrive/Pen drive).
+Large datasets shared separately (Drive / OneDrive)
 
-Contributions are welcome via pull requests.
+Contributions welcome via Pull Requests
 
-📝 To Do
-
- Improve dataset quality
-
- Add model evaluation metrics
-
- Deploy on cloud (Heroku/Streamlit)

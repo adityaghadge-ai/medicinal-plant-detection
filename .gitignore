@@ -1,25 +1,21 @@
 # ============================
-# Datasets (ignore large data)
+# Datasets (large files)
 # ============================
 dataset/
 dataset_split/
 disease_dataset/
 disease_dataset_split/
 test_images/
-test_img2/
 test_samples/
 Resized Image/
-SavingNeem An image dataset for/
 *.zip
-report.json
-confusion_matrix_new.png
-
 
 # ============================
 # Virtual environment
 # ============================
 venv/
-a.env/
+.env
+a.env
 
 # ============================
 # Uploaded / generated files
@@ -28,23 +24,19 @@ uploads/
 static/uploads/
 
 # ============================
-# Models
+# Model files (large)
 # ============================
-# Ignore all model weight/checkpoint files
 *.h5
 *.keras
 *.ckpt
 
-# Allow only JSON configs/remedies in models/
+# Allow only JSON configs
 !models/*.json
 
 # ============================
-# Temporary & cache
+# Logs & cache
 # ============================
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-*.DS_Store
 *.log
-
+*.DS_Store
