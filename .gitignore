@@ -40,3 +40,5 @@ __pycache__/
 *.pyc
 *.log
 *.DS_Store
+train2_fig.png
+train1_fig.png
