@@ -5,7 +5,7 @@ class SmartChatbot:
     def __init__(self, user_lang="en"):
         self.user_lang = user_lang
         # ✅ Fix: fetch API key properly from env, not hardcoded
-        self.api_key = os.getenv("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")
+        self.api_key = os.getenv("GROQ_API_KEY")
         self.api_url = "https://api.groq.com/v1/chat/completions"
 
         if not self.api_key:
